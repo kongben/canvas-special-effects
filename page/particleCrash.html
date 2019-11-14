@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        scrollbar-width: 0;
+        scroll-margin: 0;
+        cursor: none;
+      }
+
+      #canvas {
+        background: #f5f7f9;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script>
+      let canvas = document.getElementById("canvas");
+      let ctx = canvas.getContext("2d");
+      let WIDTH = (canvas.width = document.documentElement.clientWidth);
+      let HEIGHT = (canvas.height = document.documentElement.clientHeight);
+      let myConst = {
+        pointNum: 100, //点数量
+        collisionDistance: 10, //碰撞距离
+        lineRGB: ["170", "170", "170"] //线颜色
+      };
+      
+      canvas.width = WIDTH;
+      canvas.height = HEIGHT;
+
+      function Point(x, y) {
+        this.x = x;
+        this.y = y;
+        this.r = 1 + Math.random() * 2; //radius
+        this.sx = Math.random() * 3 - 1;
+        this.sy = Math.random() * 3 - 1;
+      }
+
+      Point.prototype.draw = function(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI); //绘制实心圆点
+        ctx.closePath();
+        ctx.fillStyle = "#aaa";
+        ctx.fill();
+      };
+
+      Point.prototype.move = function(ctx) {
+        this.x += this.sx;
+        this.y += this.sy;
+        //反射弹跳
+        if (this.x > WIDTH) this.sx = -Math.abs(this.sx);
+        else if (this.x < 0) this.sx = Math.abs(this.sx);
+        if (this.y > HEIGHT) this.sy = -Math.abs(this.sy);
+        else if (this.y < 0) this.sy = Math.abs(this.sy);
+      };
+
+      Point.prototype.drawLine = function(ctx, p) {
+        let dx = this.x - p.x;
+        let dy = this.y - p.y;
+        let d = Math.sqrt(dx * dx + dy * dy);
+        if (d < myConst.collisionDistance * myConst.collisionDistance) {
+          let alpha = ((100 - d) / 100) * 1;
+          ctx.beginPath();
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(p.x, p.y);
+          ctx.closePath();
+          ctx.strokeStyle = `rgba(${myConst.lineRGB[0]}, ${myConst.lineRGB[1]}, ${myConst.lineRGB[2]}, ${alpha})`;
+          ctx.strokeWidth = 1;
+          ctx.stroke();
+        }
+      };
+
+      function pointList() {
+        let pointList = [];
+        for (var i = 0; i < myConst.pointNum; i++) {
+          pointList.push(new Point(Math.random() * WIDTH, Math.random() * HEIGHT)); //在视图内创建点
+        }
+        return pointList;
+      }
+
+      window.addEventListener('click', (e)=>{
+        points.push(new Point(e.clientX,e.clientY)); //在视图内创建点
+      })
+      window.addEventListener('mousemove',(e)=>{
+          mouseX = event.clientX;
+          mouseY = event.clientY;
+          points[0] = new Point(mouseX, mouseY);
+      })
+
+      function paint() {
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        for (var i = 0; i < points.length; i++) {
+          points[i].move();
+          points[i].draw(ctx);
+          for (var j = i + 1; j < points.length; j++) {
+            points[i].drawLine(ctx, points[j]);
+          }
+        }
+      }
+
+      function loop() {
+        requestAnimationFrame(loop);
+        paint();
+      }
+
+      let points = pointList();
+      loop();
+    </script>
+  </body>
+</html>
