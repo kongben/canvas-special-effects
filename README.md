@@ -11,3 +11,9 @@
 
    ![粒子的移动](/screenshot/particleCrash.gif)
 
+4. [红包雨](/page/packetRain.html)
+
+   ![粒子的移动](/screenshot/packetRain.gif)
+
+   + 还可以添加消失特效
+   + 下降速度过快 碰撞判断会不太灵 需要更新碰撞检测逻辑
